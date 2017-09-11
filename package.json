@@ -1,0 +1,11 @@
+{
+  "name": "node-strdecode",
+  "version": "1.0.0",
+  "description": "Hardware-accelerated string decoding",
+  "main": "index.js",
+  "author": "zbjornson",
+  "license": "MIT",
+  "dependencies": {
+    "nan": "^2.7.0"
+  }
+}
