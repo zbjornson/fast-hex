@@ -9,7 +9,10 @@
   "targets": [
     {
       "target_name": "strdecode",
-      "sources": [ "src/strdecode.cc" ],
+      "sources": [
+        "src/strdecode.cc",
+        "src/hex.cc"
+      ],
       "include_dirs" : [
           "<!(node -e \"require('nan')\")"
       ],

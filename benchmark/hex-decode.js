@@ -33,8 +33,8 @@ const stringLengths = [/*2, 10, 100, 1000, 1600, */ 1600000 << 1];
 const methods = [
 	{label: "node", fn: strdecode.decodeHexNode},
 	{label: "preshift", fn: strdecode.decodeHexNode2},
-	{label: "vec", fn: strdecode.decodeHexVec},
-	{label: "vec8", fn: strdecode.decodeHexVec8}
+	{label: "avx2", fn: strdecode.decodeHexVec},
+	{label: "bmi", fn: strdecode.decodeHexBMI}
 ];
 
 const randomHexChar = (function () {
@@ -59,13 +59,11 @@ for (var s = 0; s < stringLengths.length; s++) {
 	input = Buffer.from(input, "utf-8").asciiSlice(0);
 
 	// Accuracy tests:
-	var receiver1 = Buffer.alloc(stringLength << 1);
-	var receiver2 = Buffer.alloc(stringLength << 1);
-	strdecode.decodeHexNode(receiver1, input);
-	strdecode.decodeHexVec(receiver2, input);
-	console.log(receiver1.equals(receiver2));
-	strdecode.decodeHexVec8(receiver1, input);
-	console.log(receiver1.equals(receiver2));
+	// var receiver1 = Buffer.alloc(stringLength << 1);
+	// var receiver2 = Buffer.alloc(stringLength << 1);
+	// strdecode.decodeHexNode(receiver1, input);
+	// strdecode.decodeHexVec(receiver2, input);
+	// console.log(receiver1.equals(receiver2));
 	// continue;
 
 	var results = {};
