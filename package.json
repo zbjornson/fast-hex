@@ -1,5 +1,5 @@
 {
-  "name": "node-strdecode",
+  "name": "fast-hex",
   "version": "1.0.0",
   "description": "Hardware-accelerated string decoding",
   "main": "index.js",

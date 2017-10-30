@@ -24,9 +24,9 @@ Pull in `src/hex.h` and `src/hex.cc`, and adjust your build appropriately
 ## Node.js
 
 ```typescript
-const speedily = require("speedily");
-speedily.decodeHexVec(output: Uint8Array|Buffer, input: Uint8Array|Buffer): void;
-speedily.encodeHexVec(input: Uint8Array|Buffer): string;
+const {decodeHexVec, encodeHexVec} = require("fast-hex");
+decodeHexVec(output: Uint8Array|Buffer, input: Uint8Array|Buffer): void;
+encodeHexVec(input: Uint8Array|Buffer): string;
 ```
 
 **Benchmark**
