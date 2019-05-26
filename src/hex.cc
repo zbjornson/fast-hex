@@ -56,20 +56,41 @@ static const uint8_t unhex_table4[256] = {
   -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1
 };
 
-static const __m256i _9 = _mm256_set1_epi16(9);
-static const __m256i _15 = _mm256_set1_epi16(0xf);
-
 // Looks up the value for the lower nibble.
 static inline int8_t unhexB(uint8_t x) { return unhex_table[x]; }
 
 // Looks up the value for the upper nibble. Equivalent to `unhexB(x) << 4`.
 static inline int8_t unhexA(uint8_t x) { return unhex_table4[x]; }
 
-static inline int8_t unhexBitManip(uint8_t x) { return 9 * (x >> 6) + (x & 0xf); }
-inline static __m256i unhexBitManip(__m256i value) {
-  __m256i sr6 = _mm256_srai_epi16(value, 6);
+static inline int8_t unhexBitManip(uint8_t x) {
+  return 9 * (x >> 6) + (x & 0xf);
+}
+
+static const __m256i _9 = _mm256_set1_epi16(9);
+static const __m256i _15 = _mm256_set1_epi16(0xf);
+
+inline static __m256i unhexBitManip(const __m256i value) {
   __m256i and15 = _mm256_and_si256(value, _15);
-  __m256i mul = _mm256_maddubs_epi16(sr6, _9);
+
+#ifndef NO_MADDUBS
+  __m256i sr6 = _mm256_srai_epi16(value, 6);
+  __m256i mul = _mm256_maddubs_epi16(sr6, _9); // this has a latency of 5
+#else
+  // ... while this I think has a latency of 4, but worse throughput(?).
+  // (x >> 6) * 9 is x * 8 + x:
+  // ((x >> 6) << 3) + (x >> 6)
+  // We need & 0b11 to emulate 8-bit operations (narrowest shift is 16b) -- or a left shift
+  // (((x >> 6) & 0b11) << 3) + ((x >> 6) & 0b11)
+  // or
+  // tmp = (x >> 6) & 0b11
+  // tmp << 3 + tmp
+  // there's no carry due to the mask+shift combo, so + is |
+  // tmp << 3 | tmp
+  __m256i sr6_lo2 = _mm256_and_si256(_mm256_srli_epi16(value, 6), _mm256_set1_epi16(0b11));
+  __m256i sr6_lo2_sl3 = _mm256_slli_epi16(sr6_lo2, 3);
+  __m256i mul = _mm256_or_si256(sr6_lo2_sl3, sr6_lo2);
+#endif
+
   __m256i add = _mm256_add_epi16(mul, and15);
   return add;
 }
