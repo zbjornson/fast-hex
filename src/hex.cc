@@ -105,11 +105,11 @@ static const __m256i ROT2 = _mm256_setr_epi8(
 );
 // a -> [a >> 4, a & 0b1111]
 inline static __m256i byte2nib(__m128i val) {
-  __m256i doubled = _mm256_cvtepi8_epi16(val);
+  __m256i doubled = _mm256_cvtepu8_epi16(val);
   __m256i hi = _mm256_srli_epi16(doubled, 4);
   __m256i lo = _mm256_shuffle_epi8(doubled, ROT2);
   __m256i bytes = _mm256_or_si256(hi, lo);
-  bytes = _mm256_and_si256(bytes, _mm256_set1_epi8(0b1111)); // cvtepi8_epi16 is sign-extending
+  bytes = _mm256_and_si256(bytes, _mm256_set1_epi8(0b1111));
   return bytes;
 }
 
