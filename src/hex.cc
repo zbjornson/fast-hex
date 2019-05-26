@@ -124,6 +124,7 @@ void decodeHexBMI(uint8_t* __restrict__ dest, const uint8_t* __restrict__ src, s
   }
 }
 
+// len is number or dest bytes (i.e. half of src length)
 void decodeHexVec(uint8_t* __restrict__ dest, const uint8_t* __restrict__ src, size_t len) {
   const __m256i A_MASK = _mm256_setr_epi8(
     0, -1, 2, -1, 4, -1, 6, -1, 8, -1, 10, -1, 12, -1, 14, -1,
@@ -135,12 +136,9 @@ void decodeHexVec(uint8_t* __restrict__ dest, const uint8_t* __restrict__ src, s
   const __m256i* val3 = reinterpret_cast<const __m256i*>(src);
   __m256i* dec256 = reinterpret_cast<__m256i*>(dest);
 
-  size_t tailLen = len % 32;
-  size_t vectLen = (len - tailLen) >> 5;
-  size_t i = 0, j = 0;
-  while (i < vectLen) {
-    __m256i av1 = _mm256_lddqu_si256(&val3[i++]); // 32 nibbles, 16 bytes
-    __m256i av2 = _mm256_lddqu_si256(&val3[i++]);
+  while (len >= 32) {
+    __m256i av1 = _mm256_lddqu_si256(val3++); // 32 nibbles, 16 bytes
+    __m256i av2 = _mm256_lddqu_si256(val3++);
                                                 // Separate high and low nibbles and extend into 16-bit elements
     __m256i a1 = _mm256_shuffle_epi8(av1, A_MASK);
     __m256i b1 = _mm256_shuffle_epi8(av1, B_MASK);
@@ -156,12 +154,16 @@ void decodeHexVec(uint8_t* __restrict__ dest, const uint8_t* __restrict__ src, s
     // Nibbles to bytes
     __m256i bytes = nib2byte(a1, b1, a2, b2);
 
-    _mm256_store_si256(&dec256[j++], bytes); // Warning: change to storeu if dest is not aligned
+    _mm256_storeu_si256(dec256++, bytes);
+    len -= 32;
   }
 
-  decodeHexBMI(dest + (vectLen << 5), src + (vectLen << 6), tailLen);
+  src = reinterpret_cast<const uint8_t*>(val3);
+  dest = reinterpret_cast<uint8_t*>(dec256);
+  decodeHexBMI(dest, src, len);
 }
 
+// len is number of dest bytes
 void decodeHexLUT(uint8_t* __restrict__ dest, const uint8_t* __restrict__ src, size_t len) {
   size_t j = 0;
   for (size_t i = 0; i < len; i++) {
@@ -173,6 +175,7 @@ void decodeHexLUT(uint8_t* __restrict__ dest, const uint8_t* __restrict__ src, s
   }
 }
 
+// len is number of dest bytes
 void decodeHexLUT4(uint8_t* __restrict__ dest, const uint8_t* __restrict__ src, size_t len) {
   size_t j = 0;
   for (size_t i = 0; i < len; i++) {
@@ -184,7 +187,8 @@ void decodeHexLUT4(uint8_t* __restrict__ dest, const uint8_t* __restrict__ src, 
   }
 }
 
-void encodeHex(uint8_t* __restrict__ dest, uint8_t* __restrict__ src, size_t len /* number of src bytes */) {
+// len is number of src bytes
+void encodeHex(uint8_t* __restrict__ dest, const uint8_t* __restrict__ src, size_t len) {
   size_t j = 0;
   for (size_t i = 0; i < len; i++) {
     uint8_t a = src[i];
@@ -195,7 +199,8 @@ void encodeHex(uint8_t* __restrict__ dest, uint8_t* __restrict__ src, size_t len
   }
 }
 
-void encodeHexVec(uint8_t* __restrict__ dest, uint8_t* __restrict__ src, size_t len /* number of src bytes */) {
+// len is number of src bytes
+void encodeHexVec(uint8_t* __restrict__ dest, const uint8_t* __restrict__ src, size_t len) {
   const __m128i* input128 = reinterpret_cast<const __m128i*>(src);
   __m256i* output256 = reinterpret_cast<__m256i*>(dest);
 
