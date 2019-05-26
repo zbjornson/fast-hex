@@ -14,7 +14,6 @@
 #include <immintrin.h>
 #elif defined(_MSC_VER)
 #include <intrin.h>
-#define __restrict__ __restrict  // The C99 keyword, available as a C++ extension
 #endif
 
 // ASCII -> hex value
@@ -113,11 +112,11 @@ inline static __m256i byte2nib(__m128i val) {
   return bytes;
 }
 
+// len is number or dest bytes (i.e. half of src length)
 void decodeHexBMI(uint8_t* __restrict__ dest, const uint8_t* __restrict__ src, size_t len) {
-  size_t j = 0;
   for (size_t i = 0; i < len; i++) {
-    uint8_t a = src[j++];
-    uint8_t b = src[j++];
+    uint8_t a = *src++;
+    uint8_t b = *src++;
     a = unhexBitManip(a);
     b = unhexBitManip(b);
     dest[i] = (a << 4) | b;
@@ -165,10 +164,9 @@ void decodeHexVec(uint8_t* __restrict__ dest, const uint8_t* __restrict__ src, s
 
 // len is number of dest bytes
 void decodeHexLUT(uint8_t* __restrict__ dest, const uint8_t* __restrict__ src, size_t len) {
-  size_t j = 0;
   for (size_t i = 0; i < len; i++) {
-    uint8_t a = src[j++];
-    uint8_t b = src[j++];
+    uint8_t a = *src++;
+    uint8_t b = *src++;
     a = unhexB(a);
     b = unhexB(b);
     dest[i] = (a << 4) | b;
@@ -177,10 +175,9 @@ void decodeHexLUT(uint8_t* __restrict__ dest, const uint8_t* __restrict__ src, s
 
 // len is number of dest bytes
 void decodeHexLUT4(uint8_t* __restrict__ dest, const uint8_t* __restrict__ src, size_t len) {
-  size_t j = 0;
   for (size_t i = 0; i < len; i++) {
-    uint8_t a = src[j++];
-    uint8_t b = src[j++];
+    uint8_t a = *src++;
+    uint8_t b = *src++;
     a = unhexA(a);
     b = unhexB(b);
     dest[i] = a | b;
@@ -189,13 +186,12 @@ void decodeHexLUT4(uint8_t* __restrict__ dest, const uint8_t* __restrict__ src, 
 
 // len is number of src bytes
 void encodeHex(uint8_t* __restrict__ dest, const uint8_t* __restrict__ src, size_t len) {
-  size_t j = 0;
   for (size_t i = 0; i < len; i++) {
     uint8_t a = src[i];
     uint8_t lo = a & 0b1111;
     uint8_t hi = a >> 4;
-    dest[j++] = hex(hi);
-    dest[j++] = hex(lo);
+    *dest++ = hex(hi);
+    *dest++ = hex(lo);
   }
 }
 
