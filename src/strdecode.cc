@@ -3,6 +3,12 @@
 #include <iostream>
 #include "hex.h"
 
+#if defined(__GNUC__) // GCC, clang
+#include <x86intrin.h> // _mm_malloc
+#elif defined(_MSC_VER)
+#include <intrin.h>
+#endif
+
 #ifdef PROFILE_
 #include <chrono>
 #include <time.h>

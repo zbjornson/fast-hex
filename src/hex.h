@@ -1,10 +1,9 @@
-#ifndef SPEEDILY_HEX_
-#define SPEEDILY_HEX_
+#pragma once
 
 #include <stdint.h>
+#include <stddef.h>
 
 #if defined(_MSC_VER)
-#include <intrin.h>
 #define __restrict__ __restrict  // The C99 keyword, available as a C++ extension
 #endif
 
@@ -22,5 +21,3 @@ void encodeHex(uint8_t* __restrict__ dest, uint8_t* __restrict__ src, size_t len
 
 // AVX2 vectorized version. len is number of src bytes.
 void encodeHexVec(uint8_t* __restrict__ dest, uint8_t* __restrict__ src, size_t len);
-
-#endif
