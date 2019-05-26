@@ -2,10 +2,13 @@
   "name": "fast-hex",
   "version": "1.0.0",
   "description": "Hardware-accelerated string decoding",
-  "main": "index.js",
+  "main": "./build/Release/strdecode.node",
   "author": "zbjornson",
   "license": "MIT",
   "dependencies": {
     "nan": "^2.14.0"
+  },
+  "scripts": {
+    "test": "node ./test.js"
   }
 }

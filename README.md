@@ -1,11 +1,14 @@
+# Fast Hex
+
 A fast, SIMD (vectorized) hex string encoder/decoder, available as a stand-alone
-C++ module and as a Node.js module. Supports upper-case and lower-case
-characters.
+C++ module and as a Node.js module.
 
-Requires x86/64 AVX2 (Haswell or later).
+* Supports upper-case and lower-case characters.
+* Does not validate input. (I'm open to a PR to add this as an option.)
+* Requires AVX2 (Haswell or later).
 
-I think these implementations are optimal, but I welcome challenges to that
-statement.
+I think these implementations are close to optimal, but PRs are welcome for
+optimizations.
 
 ---
 
@@ -14,6 +17,19 @@ statement.
 Pull in `src/hex.h` and `src/hex.cc`, and adjust your build appropriately
 (GCC/Clang/ICC: `-march=haswell` for example; MSVC: set
 `EnableAdvancedInstructionSet` to "AVX2" or `/arch:AVX2`).
+
+See `hex.h` for the exported functions. There are three decoder implementations
+and two encoder implementations, with the same signature:
+
+```cpp
+// Decodes src hex string into dest bytes.
+// len is number of dest bytes (1/2 the size of src).
+void decodeHex___(uint8_t* __restrict__ dest, const uint8_t* __restrict__ src, size_t len);
+
+// Encodes src bytes into dest hex string.
+// len is number of src bytes (dest must be twice the size of src).
+void encodeHex___(uint8_t* __restrict__ dest, const uint8_t* __restrict__ src, size_t len);
+```
 
 **Benchmark**
 * Decoding ~12.5x over scalar.
