@@ -6,6 +6,6 @@
   "author": "zbjornson",
   "license": "MIT",
   "dependencies": {
-    "nan": "^2.7.0"
+    "nan": "^2.14.0"
   }
 }
