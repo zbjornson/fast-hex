@@ -94,6 +94,7 @@ static inline int8_t unhexB(uint8_t x) { return unhex_table[x]; }
 // Looks up the value for the upper nibble. Equivalent to `unhexB(x) << 4`.
 static inline int8_t unhexA(uint8_t x) { return unhex_table4[x]; }
 
+#if defined(__AVX2__)
 static inline int8_t unhexBitManip(uint8_t x) {
   return 9 * (x >> 6) + (x & 0xf);
 }
@@ -127,10 +128,6 @@ inline static __m256i unhexBitManip(const __m256i value) {
   return add;
 }
 
-static const char hex_table[16] = {
-  '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'
-};
-inline static char hex(uint8_t value) { return hex_table[value]; }
 static const __m256i HEX_LUTR = _mm256_setr_epi8(
   '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f',
   '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f');
@@ -214,6 +211,7 @@ void decodeHexVec(uint8_t* __restrict__ dest, const uint8_t* __restrict__ src, s
   dest = reinterpret_cast<uint8_t*>(dec256);
   decodeHexBMI(dest, src, len);
 }
+#endif // defined(__AVX2__)
 
 // len is number of dest bytes
 void decodeHexLUT(uint8_t* __restrict__ dest, const uint8_t* __restrict__ src, size_t len) {
@@ -237,6 +235,11 @@ void decodeHexLUT4(uint8_t* __restrict__ dest, const uint8_t* __restrict__ src, 
   }
 }
 
+static const char hex_table[16] = {
+  '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'
+};
+inline static char hex(uint8_t value) { return hex_table[value]; }
+
 // len is number of src bytes
 void encodeHex(uint8_t* __restrict__ dest, const uint8_t* __restrict__ src, size_t len) {
   for (size_t i = 0; i < len; i++) {
@@ -248,6 +251,7 @@ void encodeHex(uint8_t* __restrict__ dest, const uint8_t* __restrict__ src, size
   }
 }
 
+#if defined(__AVX2__)
 // len is number of src bytes
 void encodeHexVec(uint8_t* __restrict__ dest, const uint8_t* __restrict__ src, size_t len) {
   const __m128i* input128 = reinterpret_cast<const __m128i*>(src);
@@ -264,3 +268,4 @@ void encodeHexVec(uint8_t* __restrict__ dest, const uint8_t* __restrict__ src, s
 
   encodeHex(dest + (vectLen << 5), src + (vectLen << 4), tailLen);
 }
+#endif // defined(__AVX2__)

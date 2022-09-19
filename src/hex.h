@@ -16,8 +16,10 @@ void decodeHexLUT(uint8_t* __restrict__ dest, const uint8_t* __restrict__ src, s
 // Optimized scalar look-up table version (avoids a shift). len is number of dest bytes (1/2 the size of src).
 void decodeHexLUT4(uint8_t* __restrict__ dest, const uint8_t* __restrict__ src, size_t len);
 
+#if defined(__AVX2__)
 // Optimal AVX2 vectorized version. len is number of dest bytes (1/2 the size of src).
 void decodeHexVec(uint8_t* __restrict__ dest, const uint8_t* __restrict__ src, size_t len);
+#endif // defined(__AVX2__)
 
 // Encoders
 // Encode src bytes into dest hex string
@@ -25,5 +27,7 @@ void decodeHexVec(uint8_t* __restrict__ dest, const uint8_t* __restrict__ src, s
 // Scalar version. len is number of src bytes. dest must be twice the size of src.
 void encodeHex(uint8_t* __restrict__ dest, const uint8_t* __restrict__ src, size_t len);
 
+#if defined(__AVX2__)
 // AVX2 vectorized version. len is number of src bytes. dest must be twice the size of src.
 void encodeHexVec(uint8_t* __restrict__ dest, const uint8_t* __restrict__ src, size_t len);
+#endif // defined(__AVX2__)
